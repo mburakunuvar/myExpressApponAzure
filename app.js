@@ -1,41 +1,79 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+// jshint esversion: 6
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const express = require("express");
+var bodyParser = require("body-parser");
+const app = express();
+app.use(
+  bodyParser.urlencoded({
+    extended: false,
+  })
+);
 
-var app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+app.get("/", function (req, res) {
+  // console.log(__dirname) ;
+  res.sendFile(__dirname + "/index.html");
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+app.post("/", function (req, res) {
+  // res.send("thanks for posting nums");
+  console.log(req.body);
+  console.log(req.body.num1 + " " + typeof req.body.num1);
+  console.log(req.body["num2"] + " " + typeof req.body.num2);
+  console.log("req.body.sum is " + req.body.operator);
+  num1 = Number(req.body.num1);
+  num2 = Number(req.body["num2"]);
+  switch (req.body.operator) {
+    case "+":
+      operator = add;
+      console.log("operator function set as: " + operator);
+      break;
+    case "x":
+      operator = multiply;
+      console.log("operator function set as: " + operator);
+      break;
+    case "-":
+      operator = subtract;
+      console.log("operator function set as: " + operator);
+      break;
+    case "/":
+      operator = divide;
+      console.log("operator function set as: " + operator);
+      break;
+  }
+  console.log(calculator(num1, num2, operator));
+  // res.send("the result is " + calculator(num1, num2, operator));
+  res.send(`
+    <h2>
+     That was easy, your result is: ${calculator(num1, num2, operator)}
+    </h2>
+    <img src="https://image-repo-buraku.s3.eu-west-1.amazonaws.com/EC2.png" alt="EC2-Icon"class="center" width="10%" style="vertical-align:middle;margin:0px 100px">
+    <p>
+    There's no need for compliments </p>
+    <p>I already know i'm the smartest app in the world hahaha ;)</p>
+    <p>
+    By the way I'm runningg on a single EC2 Instance
+    </p>
+  `);
 });
 
-module.exports = app;
+app.listen(3000, function () {
+  console.log("server started on port 3000");
+});
+
+function add(num1, num2) {
+  return num1 + num2;
+}
+
+function subtract(num1, num2) {
+  return num1 - num2;
+}
+
+function multiply(num1, num2) {
+  return num1 * num2;
+}
+function divide(num1, num2) {
+  return num1 / num2;
+}
+function calculator(num1, num2, operator) {
+  return operator(num1, num2);
+}
